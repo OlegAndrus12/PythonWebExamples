@@ -1,11 +1,12 @@
-FROM node:24.0-slim
+FROM node:14
 
 WORKDIR /app
 
-COPY package-lock.json package.json /app/
+COPY package*.json ./
 RUN npm install
 
 COPY . .
+
 EXPOSE 3000
 
-CMD [ "node", "app.js" ]
+CMD ["node", "app.js"]

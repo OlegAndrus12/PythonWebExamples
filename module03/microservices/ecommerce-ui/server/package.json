@@ -1,5 +1,5 @@
 {
-  "name": "grade-service",
+  "name": "server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,10 +9,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
+
   "dependencies": {
-    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "mongoose": "^6.0.0"
+    "express": "^4.18.3",
+    "node-fetch": "^3.3.2"
   }
 }

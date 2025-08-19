@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Contact | My Python Server</title>
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+  <header>
+    <h1>📬 Contact</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/blog">Blog</a>
+      <a href="/contact" class="active">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Send a Message</h2>
+    <form method="POST" action="/contact">
+      <label>Name:<br>
+        <input type="text" name="name" required>
+      </label><br><br>
+      <label>Email:<br>
+        <input type="email" name="email" required>
+      </label><br><br>
+      <label>Message:<br>
+        <textarea name="message" rows="5" required></textarea>
+      </label><br><br>
+      <button type="submit">Send</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>© 2025 My Python Server</p>
+  </footer>
+</body>
+</html>
