@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}My To-Do List{% endblock %}
+{% block content %}
+    <div class="navbar">
+        <h1>My To-Do List</h1>
+        <div style="display: flex; align-items: center;">
+            {% if username %}
+                <span class="user-info">Welcome, <b>{{ username }}</b>!</span>
+            {% endif %}
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <div class="todo-container">
+        <input type="text" id="todo-search" placeholder="Search for to-dos..." class="search-input">
+
+        <form class="todo-form" action="/todos/new" method="post">
+            <input type="text" name="title" placeholder="Add a new to-do title..." required>
+            <textarea name="description" placeholder="Add a description..." required></textarea>
+            <button type="submit">Add</button>
+        </form>
+
+        <ul class="todo-list" id="todo-list">
+            {% if todos %}
+                {% for todo in todos %}
+                    <li class="todo-item">
+                        <span class="todo-title">{{ todo.title }}</span>
+                        <span class="todo-description">{{ todo.description }}</span>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <p>No to-do items yet. Add one!</p>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
