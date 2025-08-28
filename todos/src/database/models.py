@@ -4,12 +4,12 @@ from sqlalchemy import (
     Integer, 
     String, 
     CheckConstraint, 
-    ForeignKey
+    ForeignKey,
+    Date,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from database.db import engine
-
+from datetime import date
 
 Base = declarative_base()
 
@@ -17,6 +17,7 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String, nullable=False, unique=True)
+    created_at = Column(Date, default=date.today)
     password = Column(String(512), nullable=False)
 
     __table_args__ = (
@@ -31,5 +32,3 @@ class Todo(Base):
     description = Column(String, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship(User)
-
-Base.metadata.create_all(engine)

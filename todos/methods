@@ -1,0 +1,24 @@
+| Method                   | Description                                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------ |
+| `model_validate`         | Validate a Python dict or object against the model schema and return an instance.                |
+| `model_validate_json`    | Validate JSON string and return a model instance.                                                |
+| `model_validate_strings` | Validate a list of JSON strings and return model instances.                                      |
+| `validate`               | Class-level validation: legacy method in v1, in v2 it wraps `model_validate`.                    |
+| `parse_obj`              | Validate a dict and return a model instance. Shortcut for `model_validate`.                      |
+| `parse_raw`              | Validate JSON/bytes/string and return a model instance.                                          |
+| `parse_file`             | Load a JSON or YAML file, validate, and return a model instance.                                 |
+| `from_orm`               | Create a model from an **ORM object** (attribute-based). Requires `Config.from_attributes=True`. |
+
+| Method                    | Description                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------------- |
+| `dict`                    | Return a Python dictionary representation of the model.                               |
+| `model_dump`              | v2 preferred version of `dict`, with extra options (`exclude`, `include`, etc.).      |
+| `json`                    | Return a JSON string of the model.                                                    |
+| `model_dump_json`         | v2 preferred version of `json`, with more control.                                    |
+| `model_extra`             | Returns **extra fields** that were not explicitly declared in the model.              |
+| `model_fields`            | Returns the model’s declared fields and metadata.                                     |
+| `model_fields_set`        | Returns a set of fields that were explicitly set when the model instance was created. |
+| `model_json_schema`       | Returns a JSON Schema dict for the model.                                             |
+| `schema`                  | Legacy method (v1), returns JSON Schema dict.                                         |
+| `schema_json`             | Returns JSON Schema as a JSON string.                                                 |
+| `model_parametrized_name` | If the model is generic/parametrized, returns its name including type parameters.     |
