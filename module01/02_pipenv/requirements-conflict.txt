@@ -1,0 +1,19 @@
+# A deliberately unsatisfiable requirement set — see the README section
+# "Конфлікт залежностей".
+#
+# Nothing here belongs to the statusboard app. The real manifests are
+# requirements.txt and requirements-dev.txt; this file is only ever used when
+# you name it explicitly, so it cannot break your working venv by accident.
+#
+# Flask 3.1.0 declares Werkzeug>=3.1. Pinning Werkzeug to 2.3.0 beside it asks
+# for a combination that does not exist:
+#
+#     pip install --dry-run -r requirements-conflict.txt
+#
+# Turn it into a *solvable* conflict by commenting out the pinned flask line
+# and uncommenting the bare one. The resolver then backtracks to Flask 2.3.1 —
+# the newest release that still accepts Werkzeug 2.3.0 — instead of failing.
+
+flask==3.1.0
+# flask
+werkzeug==2.3.0

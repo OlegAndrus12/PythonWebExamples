@@ -1,0 +1,7 @@
+# bandit has no pyproject.toml to read here, so it gets a file of its own —
+# alongside pytest.ini and requirements-dev.txt. In 03_poetry and 04_uv all
+# three of these collapse into sections of one pyproject.toml.
+exclude_dirs:
+  - .venv
+  - tests
+  - bandit_demo

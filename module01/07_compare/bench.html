@@ -1,0 +1,539 @@
+<title>pip · Poetry · uv — заміри</title>
+<style>
+  :root {
+    color-scheme: light;
+    --plane:          #f4f4f1;
+    --surface:        #fcfcfb;
+    --ink:            #0b0b0b;
+    --ink-2:          #52514e;
+    --muted:          #898781;
+    --grid:           #e1e0d9;
+    --hairline:       rgba(11, 11, 11, 0.10);
+    --series-pip:     #2a78d6;
+    --series-poetry:  #eb6834;
+    --series-uv:      #1baf7a;
+    /* Named families before system-ui: a bare system-ui can resolve to a serif
+       when the renderer has no desktop font config, and the page must not
+       silently change voice depending on where it is opened. */
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, system-ui, sans-serif;
+    --mono: SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --plane:         #0d0d0d;
+      --surface:       #1a1a19;
+      --ink:           #ffffff;
+      --ink-2:         #c3c2b7;
+      --muted:         #898781;
+      --grid:          #2c2c2a;
+      --hairline:      rgba(255, 255, 255, 0.10);
+      --series-pip:    #3987e5;
+      --series-poetry: #d95926;
+      --series-uv:     #199e70;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --plane:         #0d0d0d;
+    --surface:       #1a1a19;
+    --ink:           #ffffff;
+    --ink-2:         #c3c2b7;
+    --muted:         #898781;
+    --grid:          #2c2c2a;
+    --hairline:      rgba(255, 255, 255, 0.10);
+    --series-pip:    #3987e5;
+    --series-poetry: #d95926;
+    --series-uv:     #199e70;
+  }
+
+  body {
+    margin: 0;
+    background: var(--plane);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(28px, 4.4vw, 44px); letter-spacing: -0.02em; line-height: 1.1; }
+  h2 { font-size: 21px; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  code { font-family: var(--mono); font-size: 0.92em; }
+
+  header { display: flex; flex-direction: column; gap: 24px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .lede { max-width: 62ch; color: var(--ink-2); font-size: 17px; }
+
+  .hero { display: flex; align-items: baseline; gap: 20px; flex-wrap: wrap; }
+  .hero-figure {
+    font-size: clamp(56px, 9vw, 92px);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    color: var(--series-uv);
+  }
+  .hero-text { max-width: 34ch; color: var(--ink-2); font-size: 15px; }
+  .hero-text strong { color: var(--ink); font-weight: 600; }
+
+  dl.spec {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 32px;
+    margin: 0;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 3px;
+  }
+  dl.spec dt {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  dl.spec dd { margin: 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+
+  .legend { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); }
+  .legend code { color: var(--muted); }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+
+  .scenario {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 3px;
+  }
+  .scenario-head { display: flex; flex-direction: column; gap: 6px; }
+  .blurb { color: var(--ink-2); font-size: 15px; max-width: 68ch; }
+  .axis {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .note {
+    font-size: 13.5px;
+    color: var(--ink-2);
+    max-width: 72ch;
+    padding-left: 12px;
+    border-left: 2px solid var(--grid);
+  }
+
+  .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; }
+  .panel { margin: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  figcaption { display: flex; flex-direction: column; gap: 1px; }
+  .panel-name { font-size: 14px; font-weight: 600; }
+  .panel-meta { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+
+  .row { display: grid; grid-template-columns: 62px 1fr auto; align-items: center; gap: 10px; }
+  .row-name { font-size: 13px; color: var(--ink-2); }
+  .track {
+    position: relative;
+    height: 18px;
+    min-width: 0;
+    background: linear-gradient(to right, var(--grid) 1px, transparent 1px) repeat-x;
+    background-size: 25% 100%;
+    border-radius: 0 2px 2px 0;
+    outline-offset: 3px;
+  }
+  .bar {
+    height: 100%;
+    border-radius: 0 4px 4px 0;
+    min-width: 3px;
+  }
+  .row-value {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+  .factor { color: var(--muted); margin-left: 8px; }
+
+  .tip {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 8px);
+    z-index: 5;
+    width: max-content;
+    max-width: 300px;
+    padding: 8px 10px;
+    background: var(--ink);
+    color: var(--surface);
+    font-size: 12px;
+    line-height: 1.35;
+    border-radius: 3px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 120ms ease;
+  }
+  .track:hover .tip, .track:focus-visible .tip { opacity: 1; visibility: visible; }
+  @media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
+
+  .scroller { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 12px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  thead th {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  td.strong { color: var(--ink); }
+  td.muted { color: var(--muted); }
+  th.set-head {
+    border-left: 1px solid var(--grid);
+    color: var(--ink);
+    font-size: 12px;
+    text-align: center;
+  }
+  th.tool { font-weight: 400; color: var(--ink-2); }
+  th.tool .swatch { display: inline-block; margin-right: 8px; vertical-align: middle; }
+
+  .method { display: flex; flex-direction: column; gap: 12px; }
+  .method ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .method li { color: var(--ink-2); font-size: 14.5px; max-width: 76ch; }
+  .method strong { color: var(--ink); font-weight: 600; }
+  pre {
+    margin: 0;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 3px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--grid); padding-top: 20px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">module 01 · пакетні менеджери</p>
+    <h1>pip, Poetry і uv на тих самих залежностях</h1>
+    <p class="lede">
+      Той самий набір пакетів, той самий інтерпретатор, той самий кеш — і три операції,
+      які ви робите щодня. Усі цифри отримані скриптом <code>bench.py</code> із цієї теки;
+      запустіть його й отримаєте свої.
+    </p>
+      <div class="hero">
+        <div class="hero-figure">×48</div>
+        <p class="hero-text">
+          різниця між <strong>uv</strong>
+          (464 мс) і
+          <strong>pip</strong>
+          (22.4 с) на сценарії
+          «встановлення, теплий кеш»,
+          набір zoo_api-sized
+        </p>
+      </div>
+    <dl class="spec">
+        <div><dt>машина</dt><dd>macOS · x86_64 · 12 CPU</dd></div>
+        <div><dt>python</dt><dd>3.12.13</dd></div>
+        <div><dt>poetry</dt><dd>2.4.1</dd></div>
+        <div><dt>uv</dt><dd>0.11.4</dd></div>
+        <div><dt>заміри</dt><dd>по одному запуску</dd></div>
+    </dl>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--series-pip)"></i>pip <code>· python -m venv + pip install</code></span>
+      <span><i class="swatch" style="background:var(--series-poetry)"></i>Poetry <code>· poetry install</code></span>
+      <span><i class="swatch" style="background:var(--series-uv)"></i>uv <code>· uv sync</code></span>
+    </div>
+  </header>
+
+    <section class="scenario">
+      <div class="scenario-head">
+        <h2>Резолюція</h2>
+        <p class="blurb">Перетворити діапазони з маніфесту на точні версії у lock-файлі.</p>
+        <p class="axis">шкала обох панелей спільна, 0 – 8.91 с</p>
+      </div>
+      <div class="panels">
+      <figure class="panel">
+        <figcaption>
+          <span class="panel-name">statusboard</span>
+          <span class="panel-meta">6 прямих залежностей</span>
+        </figcaption>
+        <div class="row">
+          <div class="row-name">pip</div>
+          <div class="track" tabindex="0" data-tip="pip · 3.52 с · pip-compile requirements.in -o requirements.txt --quiet">
+            <div class="bar" style="width:39.53%;background:var(--series-pip)"></div>
+            <div class="tip" role="tooltip">pip · 3.52 с · pip-compile requirements.in -o requirements.txt --quiet</div>
+          </div>
+          <div class="row-value">3.52 с<span class="factor">×38</span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">Poetry</div>
+          <div class="track" tabindex="0" data-tip="Poetry · 2.62 с · poetry lock --regenerate --no-ansi">
+            <div class="bar" style="width:29.41%;background:var(--series-poetry)"></div>
+            <div class="tip" role="tooltip">Poetry · 2.62 с · poetry lock --regenerate --no-ansi</div>
+          </div>
+          <div class="row-value">2.62 с<span class="factor">×28</span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">uv</div>
+          <div class="track" tabindex="0" data-tip="uv · 93 мс · uv lock">
+            <div class="bar" style="width:1.04%;background:var(--series-uv)"></div>
+            <div class="tip" role="tooltip">uv · 93 мс · uv lock</div>
+          </div>
+          <div class="row-value">93 мс<span class="factor"></span></div>
+        </div>
+      </figure>
+      <figure class="panel">
+        <figcaption>
+          <span class="panel-name">zoo_api-sized</span>
+          <span class="panel-meta">13 прямих залежностей</span>
+        </figcaption>
+        <div class="row">
+          <div class="row-name">pip</div>
+          <div class="track" tabindex="0" data-tip="pip · 8.91 с · pip-compile requirements.in -o requirements.txt --quiet">
+            <div class="bar" style="width:100.00%;background:var(--series-pip)"></div>
+            <div class="tip" role="tooltip">pip · 8.91 с · pip-compile requirements.in -o requirements.txt --quiet</div>
+          </div>
+          <div class="row-value">8.91 с<span class="factor">×65</span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">Poetry</div>
+          <div class="track" tabindex="0" data-tip="Poetry · 6.69 с · poetry lock --regenerate --no-ansi">
+            <div class="bar" style="width:75.03%;background:var(--series-poetry)"></div>
+            <div class="tip" role="tooltip">Poetry · 6.69 с · poetry lock --regenerate --no-ansi</div>
+          </div>
+          <div class="row-value">6.69 с<span class="factor">×48</span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">uv</div>
+          <div class="track" tabindex="0" data-tip="uv · 138 мс · uv lock">
+            <div class="bar" style="width:1.55%;background:var(--series-uv)"></div>
+            <div class="tip" role="tooltip">uv · 138 мс · uv lock</div>
+          </div>
+          <div class="row-value">138 мс<span class="factor"></span></div>
+        </div>
+      </figure>
+      </div>
+      <p class="note">У pip lock-файлів немає — у цьому рядку працює <code>pip-compile</code> з pip-tools, окремого проєкту. Це найближчий аналог, а не сам pip.</p>
+    </section>
+    <section class="scenario">
+      <div class="scenario-head">
+        <h2>Встановлення, порожній кеш</h2>
+        <p class="blurb">Перший раз на новій машині або в CI без кешу: створити venv і завантажити всі пакети.</p>
+        <p class="axis">шкала обох панелей спільна, 0 – 34.3 с</p>
+      </div>
+      <div class="panels">
+      <figure class="panel">
+        <figcaption>
+          <span class="panel-name">statusboard</span>
+          <span class="panel-meta">6 прямих залежностей → 34 пакети</span>
+        </figcaption>
+        <div class="row">
+          <div class="row-name">pip</div>
+          <div class="track" tabindex="0" data-tip="pip · 15.5 с · python3.12 -m venv .venv + python -m pip install -q -r requirements.txt">
+            <div class="bar" style="width:45.13%;background:var(--series-pip)"></div>
+            <div class="tip" role="tooltip">pip · 15.5 с · python3.12 -m venv .venv + python -m pip install -q -r requirements.txt</div>
+          </div>
+          <div class="row-value">15.5 с<span class="factor">×2.3</span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">Poetry</div>
+          <div class="track" tabindex="0" data-tip="Poetry · 9.77 с · poetry install --no-ansi">
+            <div class="bar" style="width:28.46%;background:var(--series-poetry)"></div>
+            <div class="tip" role="tooltip">Poetry · 9.77 с · poetry install --no-ansi</div>
+          </div>
+          <div class="row-value">9.77 с<span class="factor">×1.4</span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">uv</div>
+          <div class="track" tabindex="0" data-tip="uv · 6.86 с · uv sync -p /Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12">
+            <div class="bar" style="width:19.99%;background:var(--series-uv)"></div>
+            <div class="tip" role="tooltip">uv · 6.86 с · uv sync -p /Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12</div>
+          </div>
+          <div class="row-value">6.86 с<span class="factor"></span></div>
+        </div>
+      </figure>
+      <figure class="panel">
+        <figcaption>
+          <span class="panel-name">zoo_api-sized</span>
+          <span class="panel-meta">13 прямих залежностей → 79 пакетів</span>
+        </figcaption>
+        <div class="row">
+          <div class="row-name">pip</div>
+          <div class="track" tabindex="0" data-tip="pip · 34.3 с · python3.12 -m venv .venv + python -m pip install -q -r requirements.txt">
+            <div class="bar" style="width:100.00%;background:var(--series-pip)"></div>
+            <div class="tip" role="tooltip">pip · 34.3 с · python3.12 -m venv .venv + python -m pip install -q -r requirements.txt</div>
+          </div>
+          <div class="row-value">34.3 с<span class="factor">×3.1</span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">Poetry</div>
+          <div class="track" tabindex="0" data-tip="Poetry · 11.0 с · poetry install --no-ansi">
+            <div class="bar" style="width:32.07%;background:var(--series-poetry)"></div>
+            <div class="tip" role="tooltip">Poetry · 11.0 с · poetry install --no-ansi</div>
+          </div>
+          <div class="row-value">11.0 с<span class="factor"></span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">uv</div>
+          <div class="track" tabindex="0" data-tip="uv · 23.8 с · uv sync -p /Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12">
+            <div class="bar" style="width:69.50%;background:var(--series-uv)"></div>
+            <div class="tip" role="tooltip">uv · 23.8 с · uv sync -p /Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12</div>
+          </div>
+          <div class="row-value">23.8 с<span class="factor">×2.2</span></div>
+        </div>
+      </figure>
+      </div>
+      <p class="note">Єдиний сценарій, який залежить від мережі, а не від інструмента: усі три чекають на ті самі wheel-и з PyPI. Тому саме тут різниця між двома запусками того самого інструмента може бути більшою, ніж різниця між інструментами — не робіть із цих цифр висновків про резолвери. <strong>На цій машині uv тут не найшвидший</strong> — перемагає Poetry.</p>
+    </section>
+    <section class="scenario">
+      <div class="scenario-head">
+        <h2>Встановлення, теплий кеш</h2>
+        <p class="blurb">Друге оточення з тими самими залежностями — пакети вже в кеші, лишається розпакувати їх у venv.</p>
+        <p class="axis">шкала обох панелей спільна, 0 – 22.4 с</p>
+      </div>
+      <div class="panels">
+      <figure class="panel">
+        <figcaption>
+          <span class="panel-name">statusboard</span>
+          <span class="panel-meta">6 прямих залежностей → 34 пакети</span>
+        </figcaption>
+        <div class="row">
+          <div class="row-name">pip</div>
+          <div class="track" tabindex="0" data-tip="pip · 9.10 с · python3.12 -m venv .venv + python -m pip install -q -r requirements.txt">
+            <div class="bar" style="width:40.60%;background:var(--series-pip)"></div>
+            <div class="tip" role="tooltip">pip · 9.10 с · python3.12 -m venv .venv + python -m pip install -q -r requirements.txt</div>
+          </div>
+          <div class="row-value">9.10 с<span class="factor">×68</span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">Poetry</div>
+          <div class="track" tabindex="0" data-tip="Poetry · 2.34 с · poetry install --no-ansi">
+            <div class="bar" style="width:10.46%;background:var(--series-poetry)"></div>
+            <div class="tip" role="tooltip">Poetry · 2.34 с · poetry install --no-ansi</div>
+          </div>
+          <div class="row-value">2.34 с<span class="factor">×18</span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">uv</div>
+          <div class="track" tabindex="0" data-tip="uv · 133 мс · uv sync -p /Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12">
+            <div class="bar" style="width:0.60%;background:var(--series-uv)"></div>
+            <div class="tip" role="tooltip">uv · 133 мс · uv sync -p /Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12</div>
+          </div>
+          <div class="row-value">133 мс<span class="factor"></span></div>
+        </div>
+      </figure>
+      <figure class="panel">
+        <figcaption>
+          <span class="panel-name">zoo_api-sized</span>
+          <span class="panel-meta">13 прямих залежностей → 79 пакетів</span>
+        </figcaption>
+        <div class="row">
+          <div class="row-name">pip</div>
+          <div class="track" tabindex="0" data-tip="pip · 22.4 с · python3.12 -m venv .venv + python -m pip install -q -r requirements.txt">
+            <div class="bar" style="width:100.00%;background:var(--series-pip)"></div>
+            <div class="tip" role="tooltip">pip · 22.4 с · python3.12 -m venv .venv + python -m pip install -q -r requirements.txt</div>
+          </div>
+          <div class="row-value">22.4 с<span class="factor">×48</span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">Poetry</div>
+          <div class="track" tabindex="0" data-tip="Poetry · 5.34 с · poetry install --no-ansi">
+            <div class="bar" style="width:23.83%;background:var(--series-poetry)"></div>
+            <div class="tip" role="tooltip">Poetry · 5.34 с · poetry install --no-ansi</div>
+          </div>
+          <div class="row-value">5.34 с<span class="factor">×12</span></div>
+        </div>
+        <div class="row">
+          <div class="row-name">uv</div>
+          <div class="track" tabindex="0" data-tip="uv · 464 мс · uv sync -p /Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12">
+            <div class="bar" style="width:2.07%;background:var(--series-uv)"></div>
+            <div class="tip" role="tooltip">uv · 464 мс · uv sync -p /Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12</div>
+          </div>
+          <div class="row-value">464 мс<span class="factor"></span></div>
+        </div>
+      </figure>
+      </div>
+      <p class="note">Тут видно ціну копіювання файлів: uv кладе у venv жорсткі посилання на глобальний кеш замість копій, тому «встановлення» — це майже лише створення записів у теці. Це сценарій, який ви проходите щодня.</p>
+    </section>
+
+    <section class="table-view">
+      <h2>Усі цифри</h2>
+      <p class="blurb">Один запуск на клітинку. ×-множник — до найшвидшого в колонці.</p>
+      <div class="scroller">
+        <table>
+          <thead>
+            <tr><th></th><th class="num set-head" colspan="3">statusboard</th><th class="num set-head" colspan="3">zoo_api-sized</th></tr>
+            <tr><th></th><th class="num">резолюція</th><th class="num">порожній кеш</th><th class="num">теплий кеш</th><th class="num">резолюція</th><th class="num">порожній кеш</th><th class="num">теплий кеш</th></tr>
+          </thead>
+          <tbody>
+            <tr><th class="tool"><span class="swatch" style="background:var(--series-pip)"></span>pip</th><td class="num strong">3.52 с<span class="factor">×38</span></td><td class="num strong">15.5 с<span class="factor">×2.3</span></td><td class="num strong">9.10 с<span class="factor">×68</span></td><td class="num strong">8.91 с<span class="factor">×65</span></td><td class="num strong">34.3 с<span class="factor">×3.1</span></td><td class="num strong">22.4 с<span class="factor">×48</span></td></tr>
+            <tr><th class="tool"><span class="swatch" style="background:var(--series-poetry)"></span>Poetry</th><td class="num strong">2.62 с<span class="factor">×28</span></td><td class="num strong">9.77 с<span class="factor">×1.4</span></td><td class="num strong">2.34 с<span class="factor">×18</span></td><td class="num strong">6.69 с<span class="factor">×48</span></td><td class="num strong">11.0 с</td><td class="num strong">5.34 с<span class="factor">×12</span></td></tr>
+            <tr><th class="tool"><span class="swatch" style="background:var(--series-uv)"></span>uv</th><td class="num strong">93 мс</td><td class="num strong">6.86 с</td><td class="num strong">133 мс</td><td class="num strong">138 мс</td><td class="num strong">23.8 с<span class="factor">×2.2</span></td><td class="num strong">464 мс</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  <section class="method">
+    <h2>Як це міряли</h2>
+    <ul>
+      <li><strong>Кеші перенаправлені, а не почищені.</strong> Кожен процес отримує
+        <code>PIP_CACHE_DIR</code>, <code>POETRY_CACHE_DIR</code>, <code>UV_CACHE_DIR</code>
+        у тимчасовій теці. «Порожній кеш» — це новий порожній кеш, а не
+        <code>uv cache clean</code>: ваш справжній кеш не чіпають.</li>
+      <li><strong>Один інтерпретатор на всі три інструменти</strong>, знайдений через
+        <code>uv python find</code>. Жодному з них не дозволено завантажувати Python,
+        інакше ми міряли б швидкість мережі, а не резолвер.</li>
+      <li><strong>venv створюється всередині заміру.</strong> <code>poetry install</code> і
+        <code>uv sync</code> роблять оточення самі, тому pip міряється разом із
+        <code>python -m venv</code> — інакше pip виглядав би швидшим, ніж він є.</li>
+      <li><strong>Міряється лише команда під тестом.</strong> Lock-файл, з якого встановлюють,
+        і прогрів кешу — це підготовка, вона поза таймером.</li>
+      <li><strong>pip встановлює з приколотих версій.</strong> У рядку «резолюція» він
+        справді резолвить (через <code>pip-compile</code>), а в рядках встановлення читає
+        готовий <code>requirements.txt</code> — так само, як Poetry й uv читають свої
+        lock-файли. Реальний <code>requirements.txt</code> теж приколотий, тому pip там
+        швидший саме тому, що робить менше.</li>
+      <li><strong>Один запуск на клітинку</strong> — це заміри, а не статистика. Для
+        «резолюції» й «теплого кешу» різниця між запусками — одиниці відсотків; для
+        «порожнього кешу» вона велика. Кожна команда, її тривалість і код повернення —
+        у <code>results.json</code>.</li>
+    </ul>
+  </section>
+
+  <section class="method">
+    <h2>Набори залежностей</h2>
+    <ul>
+        <li><strong>statusboard</strong> — той самий застосунок, що у 02_pipenv / 03_poetry / 04_uv: 6 прямих залежностей, оголошених діапазонами, як ви написали б їх руками</li>
+        <li><strong>zoo_api-sized</strong> — рантайм-залежності zoo_api плюс звичайний dev-набір: 13 прямих залежностей, оголошених діапазонами, як ви написали б їх руками</li>
+    </ul>
+    <pre>cd module01/07_compare
+python3 bench.py --quick     # лише малий набір, ~1 хвилина
+python3 bench.py             # уся матриця → results.json
+python3 render.py            # results.json → bench.html</pre>
+  </section>
+
+  <footer>
+    Заміри на одній машині з домашньою мережею. Цифри для «порожнього кешу» залежать від
+    каналу й дзеркала PyPI; «резолюція» і «теплий кеш» від мережі майже не залежать —
+    саме на них варто дивитися.
+  </footer>
+</div>

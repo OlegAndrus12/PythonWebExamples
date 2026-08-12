@@ -1,0 +1,8 @@
+{
+  "Cloudflare": "https://www.cloudflare.com",
+  "AWS": "https://aws.amazon.com",
+  "Instagram": "https://www.instagram.com",
+  "GitHub": "https://github.com",
+  "PyPI": "https://pypi.org",
+  "Unreachable (on purpose)": "https://no-such-host.invalid"
+}

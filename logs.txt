@@ -1,0 +1,6 @@
+2026-08-12 13:45:12.258037: [MessageStatus.WARNING] - RSA128 is deprecated
+2026-08-12 13:45:12.258623: [MessageStatus.ERROR] - File users.json does not exosts
+2026-08-12 13:45:12.259058: [SUCCESS] - /user/login - 200
+2026-08-12 13:45:12.779187: [MessageStatus.WARNING] - RSA128 is deprecated
+2026-08-12 13:45:12.779836: [MessageStatus.ERROR] - File users.json does not exosts
+2026-08-12 13:45:12.780358: [SUCCESS] - /user/login - 200

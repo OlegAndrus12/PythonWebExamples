@@ -1,0 +1,36 @@
+# pre-commit runs ruff and bandit on `git commit`, against staged files only.
+#
+#   uv run pre-commit install                 # wire into .git/hooks (once)
+#   uv run pre-commit run --all-files         # run over everything now
+#   uv run pre-commit autoupdate              # bump the `rev:` pins below
+#
+# Hooks install per GIT REPOSITORY, not per folder, and this repo holds several
+# projects. From the repository root, point at this file explicitly:
+#
+#   pre-commit run --config module01/04_uv/.pre-commit-config.yaml --all-files
+#
+# `files:` keeps these hooks off the other two copies of the same application.
+
+files: ^module01/04_uv/
+exclude: ^module01/04_uv/(bandit_demo|\.venv)/
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.1
+    hooks:
+      # NOTE: this hook was called `ruff` before v0.12. Old configs will not
+      # work against a current rev, and the error message is unhelpful.
+      - id: ruff-check
+        # --exit-non-zero-on-fix matters: with a bare --fix, ruff repairs
+        # the file and exits 0, so the commit goes through and you never
+        # notice your source was rewritten.
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.4
+    hooks:
+      - id: bandit
+        args: [-c, module01/04_uv/pyproject.toml]
+        # assert in tests is normal; bandit reports it as B101.
+        exclude: ^module01/04_uv/tests/

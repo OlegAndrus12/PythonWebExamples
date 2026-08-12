@@ -1,0 +1,5 @@
+# Resolution alone needs no environment, and this demo is never installed —
+# without this, `poetry lock` would still create a stray virtualenv in
+# ~/Library/Caches/pypoetry/virtualenvs just to inspect an interpreter.
+[virtualenvs]
+create = false

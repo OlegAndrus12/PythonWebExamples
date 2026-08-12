@@ -1,0 +1,25 @@
+# No pyproject.toml here, so ruff gets its own file — alongside pytest.ini,
+# bandit.yaml and requirements-dev.txt. In 03_poetry and 04_uv all of these
+# are sections of one pyproject.toml.
+line-length = 100
+target-version = "py312"
+
+# The demo file is broken on purpose; linting or auto-fixing it would undo
+# exactly what it exists to show.
+extend-exclude = ["bandit_demo"]
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+# E — pycodestyle errors: PEP 8 style violations like whitespace problems, blank-line rules, comparison style (E501 line-too-long is measured against the line-length = 100 set above).
+# F — Pyflakes: real correctness issues — unused imports/variables, undefined names, f-strings with no placeholders.
+# I — isort: import sorting and grouping (stdlib → third-party → local). This is why the [lint.isort] section below exists — known-first-party tells it which imports count as "local" since a flat folder gives it no way to infer that.
+# UP — pyupgrade: flags outdated syntax that has a modern replacement — e.g. typing.List[int] → list[int], "%s" % x → f-string. What counts as "modern" is bounded by target-version = "py312" above: it won't suggest syntax newer than 3.12.
+# B — flake8-bugbear: likely-bug patterns that are syntactically valid — mutable default arguments, except: swallowing too much, loop variables captured in closures.
+# SIM — flake8-simplify: code that can be shortened without changing behavior — if x: return True else: return False → return bool(x), nested ifs that can be merged, dict.get() instead of key-check-then-index.
+
+[lint.isort]
+# This project is a flat folder, not a package, so ruff cannot tell which
+# imports are ours. Without this, `import services` gets sorted in among the
+# third-party packages and the stdlib/third-party/local grouping is lost.
+known-first-party = ["app", "checks", "services", "incidents"]

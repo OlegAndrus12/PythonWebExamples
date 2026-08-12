@@ -1,0 +1,53 @@
+[project]
+name = "statusboard"
+version = "0.1.0"
+description = "Uptime board for public sites, managed with uv"
+requires-python = ">=3.12"
+
+# Byte for byte the same declaration Poetry uses in 03_poetry. Both tools read
+# PEP 621, so the manifest is portable; only the lock file and the CLI differ.
+dependencies = [
+    "flask>=3.1.0,<4.0.0",
+    "requests>=2.32.3,<3.0.0",
+]
+
+# uv's own section. PEP 735 dependency groups replace Poetry's
+# [tool.poetry.group.*] and are a standard rather than one tool's invention.
+[dependency-groups]
+dev = [
+    "bandit>=1.9.4",
+    "pre-commit>=4.6.1",
+    "pytest>=9.1.1",
+    "ruff>=0.14.0",
+]
+
+# No [build-system]. That is what marks this as an application rather than a
+# distributable package — uv manages the environment and never tries to build
+# the project itself.
+
+# The same settings 02_pipenv keeps in pytest.ini. One of the reasons
+# pyproject.toml exists: every tool configured in one place.
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.bandit]
+exclude_dirs = [".venv", "tests", "bandit_demo"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+# The demo file is broken on purpose; linting or auto-fixing it would undo
+# exactly what it exists to show.
+extend-exclude = ["bandit_demo"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.isort]
+# This project is a flat folder, not a package, so ruff cannot tell which
+# imports are ours. Without this, `import services` gets sorted in among the
+# third-party packages and the stdlib/third-party/local grouping is lost.
+known-first-party = ["app", "checks", "services", "incidents"]

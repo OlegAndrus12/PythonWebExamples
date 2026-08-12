@@ -1,0 +1,28 @@
+[project]
+name = "solid-ex"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Oleh Andrus",email = "andrusoleg123@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+]
+
+[tool.poetry]
+packages = [{include = "solid_ex", from = "src"}]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+
+[tool.pytest.ini_options]
+# Also lets `pytest` work for someone who forgot `poetry install`.
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra"
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,39 @@
+# Everything listed here is never sent to the Docker daemon, so it can neither
+# slow the build down nor end up in the image.
+
+# The host virtualenv. Copying it in would be actively harmful: it is built
+# for macOS, the image is Linux.
+.venv/
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Docker's own files: the image does not need instructions for building itself.
+Dockerfile
+.dockerignore
+docker-compose.yaml
+
+.git/
+.gitignore
+README.md
+
+# Inherited from module01/03_poetry, where these exist to demonstrate Poetry,
+# bandit and mypy. None of it is application code.
+bandit_demo/
+mypy_demo/
+conflict/
+test_env/
+pyproject.reference.toml
+.pre-commit-config.yaml
+notes.md
+transcript.md
+
+# module01 keeps a uv.lock next to poetry.lock to compare the two resolvers.
+# Only poetry.lock is authoritative here.
+uv.lock
+
+# Tests run in CI and on the laptop, not inside the runtime image.
+tests/

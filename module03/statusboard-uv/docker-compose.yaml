@@ -1,0 +1,30 @@
+# One service, so Compose buys less here than it does in flask-node/ or
+# microservices/ — no network to create, no start order to get right. What it
+# still buys is that the build flags, the port mapping and the mount stop being
+# something you have to retype correctly every time.
+
+services:
+  statusboard-uv:
+    build:
+      context: .
+    image: statusboard-uv
+    container_name: statusboard-uv
+    ports:
+      # host:container. Change the LEFT number if 8000 is taken — the
+      # microservices/ example publishes contact-support-team on 8000 too,
+      # and ../statusboard-poetry/ uses 8001.
+      - "8000:8000"
+    environment:
+      # Flask reads this itself. Set it to 1 for the reloader and tracebacks;
+      # note the reloader is useless without the mount below, since the source
+      # in the image is a frozen copy.
+      - FLASK_DEBUG=0
+    volumes:
+      # The watch list lives in a JSON file inside the image, so services added
+      # through the UI vanish with the container. Bind-mounting the single file
+      # back to the host is the smallest fix: edits now land in the repo.
+      #
+      # Not a general solution — see "State and containers" in the README, and
+      # the docstring in services.py, which argues for a database instead.
+      - ./services.json:/app/services.json
+    restart: unless-stopped

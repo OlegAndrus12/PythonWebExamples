@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Service status{% endblock %}
+{% block heading %}Service status{% endblock %}
+{% block subtitle %}Each endpoint is probed over HTTP when this page is rendered.{% endblock %}
+
+{% block refresh %}
+  <meta http-equiv="refresh" content="30">
+{% endblock %}
+
+{% block content %}
+    {% set latencies = results | rejectattr('latency_ms', 'none') | map(attribute='latency_ms') | list %}
+    {% set peak = (latencies | max if latencies else 1) or 1 %}
+
+    <h2>Add a service</h2>
+
+    <div class="card card--form">
+      <form class="add-form" method="post" action="{{ url_for('add_service') }}">
+        <div class="field">
+          <label for="service-name">Name</label>
+          <input id="service-name" name="name" type="text" required maxlength="60"
+                 placeholder="Cloudflare" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="service-url">URL</label>
+          <input id="service-url" name="url" type="text" required
+                 placeholder="example.com or https://example.com"
+                 autocomplete="off" spellcheck="false">
+        </div>
+
+        <button class="btn" type="submit">Add</button>
+      </form>
+    </div>
+
+    {% if results %}
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Service</th>
+            <th scope="col">Status</th>
+            <th scope="col">HTTP</th>
+            <th scope="col">Latency</th>
+            <th scope="col"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in results %}
+          <tr>
+            <th scope="row">
+              <a class="service-name" href="{{ h.url }}">{{ h.name }}</a>
+              <span class="service-url">{{ h.url }}</span>
+            </th>
+            <td>
+              <span class="state">
+                <span class="dot {{ 'dot--ok' if h.ok else 'dot--down' }}" aria-hidden="true"></span>
+                <span>{{ "Operational" if h.ok else "Down" }}</span>
+              </span>
+            </td>
+
+            <td class="num">
+              {%- if h.status is not none -%}
+                {{ h.status }}
+              {%- else -%}
+                <span class="muted" aria-hidden="true">&mdash;</span><span class="sr-only">no response</span>
+              {%- endif -%}
+            </td>
+
+            <td class="latency">
+              {%- if h.latency_ms is not none -%}
+                <span class="num">{{ h.latency_ms }} ms</span>
+                {%- set pct = [ (h.latency_ms / peak * 100) | round | int, 6 ] | max -%}
+                <span class="bar">
+                  <span class="bar__fill bar__fill--{{ 'fast' if h.latency_ms < 150 else ('mid' if h.latency_ms < 400 else 'slow') }}"
+                        style="width: {{ pct }}%"></span>
+                </span>
+              {%- elif h.error -%}
+                <span class="error">{{ h.error }}</span>
+              {%- else -%}
+                <span class="muted" aria-hidden="true">&mdash;</span><span class="sr-only">not measured</span>
+              {%- endif -%}
+            </td>
+
+            <td class="actions">
+              <form method="post" action="{{ url_for('delete_service') }}">
+                <input type="hidden" name="name" value="{{ h.name }}">
+                <button class="btn-remove" type="submit" aria-label="Remove {{ h.name }}">Remove</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="card empty">
+      <p>Nothing is being watched yet. Add your first service with the form above.</p>
+    </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block footer %}This page reloads itself every 30 seconds.{% endblock %}

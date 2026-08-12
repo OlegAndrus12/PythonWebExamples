@@ -1,0 +1,202 @@
+# ДОВІДКОВИЙ ФАЙЛ — не використовується для збірки.
+#
+# Пара до ../03_poetry/pyproject.reference.toml. Блок [project] там і тут
+# ІДЕНТИЧНИЙ — це PEP 621, спільний стандарт. Тому тут він скорочений, а вся
+# увага на тому, що в Poetry живе під [tool.poetry], а в uv має інші назви.
+#
+# Перевірити:
+#   mkdir -p /tmp/uref && cp pyproject.reference.toml /tmp/uref/pyproject.toml
+#   cd /tmp/uref && uv lock
+
+
+# ════════════════════════════════════════════════════════════════════════
+#  [project] — ТЕ САМЕ, ЩО В POETRY
+#  name, version, description, readme, requires-python, license, authors,
+#  keywords, classifiers, dependencies, optional-dependencies, urls,
+#  scripts, gui-scripts, entry-points, dynamic — усе працює однаково.
+#  Повний перелік з поясненнями — у довіднику Poetry.
+# ════════════════════════════════════════════════════════════════════════
+[project]
+name = "statusboard"
+version = "0.1.0"
+description = "Uptime board for public sites"
+requires-python = ">=3.12,<4.0"
+
+dependencies = [
+    "flask>=3.1.0,<4.0.0",
+    "requests[socks]>=2.32.3,<3.0.0",
+    "tomli>=2.0; python_version < '3.11'",
+]
+
+# ⚠ ЄДИНА НЕСУМІСНІСТЬ СИНТАКСИСУ
+#
+# Poetry має власний короткий запис версій — ^1.2.3 і ~1.2.3 — але лише
+# всередині СВОЇХ таблиць ([tool.poetry.dependencies],
+# [tool.poetry.group.*.dependencies]). У [project].dependencies його не можна
+# використовувати навіть у Poetry: там за стандартом лише PEP 508.
+#
+# uv власних таблиць для залежностей не має, тому caret не існує ніде:
+#
+#     "flask^3.1.0"   →   ValueError: `project.dependencies[0]` must be pep508
+#
+# Відповідники:
+#     ^1.2.3   →   >=1.2.3,<2.0.0
+#     ^0.2.3   →   >=0.2.3,<0.3.0
+#     ~1.2.3   →   ~=1.2.3          (PEP 440 має свій «сумісний реліз»)
+#
+# А ось запис Poetry у дужках — "flask (>=3.1.0,<4.0.0)" — uv розуміє
+# нормально: це валідний PEP 508.
+
+[project.optional-dependencies]
+postgres = ["psycopg[binary]>=3.2"]
+
+
+# ════════════════════════════════════════════════════════════════════════
+#  [dependency-groups] — PEP 735
+#  Заміна [tool.poetry.group.*.dependencies]. Ключова різниця: це СТАНДАРТ,
+#  а не вигадка інструменту. Його розуміють uv, Poetry 2.x, pip і pdm.
+# ════════════════════════════════════════════════════════════════════════
+[dependency-groups]
+dev = ["ruff>=0.14.0", "pytest>=8.3"]
+docs = ["mkdocs>=1.6", "mkdocs-material>=9.5"]
+typing = ["mypy>=1.13", "types-requests>=2.32"]
+
+# Група, зібрана з інших груп.
+all = [{ include-group = "dev" }, { include-group = "typing" }]
+
+# uv sync                    → main + default-groups (див. нижче)
+# uv sync --group docs       → і docs теж
+# uv sync --no-dev           → без dev
+# uv sync --only-group docs  → тільки docs
+# uv sync --all-groups       → усі
+
+
+# ════════════════════════════════════════════════════════════════════════
+#  [tool.uv] — аналог [tool.poetry]
+# ════════════════════════════════════════════════════════════════════════
+[tool.uv]
+# Які групи ставити без явних прапорців. За замовчуванням — ["dev"].
+# Це заміна поетрівському optional = true, тільки навпаки: там вимикали
+# групу, тут перелічують увімкнені.
+default-groups = ["dev"]
+
+# false → застосунок: uv керує середовищем і не збирає проєкт.
+# Аналог package-mode = false. Якщо в файлі немає [build-system],
+# це і так мається на увазі — рядок потрібен лише щоб сказати явно.
+package = false
+
+# Мінімальна версія самого uv (аналог requires-poetry).
+required-version = ">=0.9"
+
+# Звідки брати інтерпретатор:
+#   only-managed  — лише завантажені самим uv
+#   managed       — спершу свої, потім системні (за замовчуванням)
+#   only-system   — лише системні
+python-preference = "managed"
+python-downloads = "automatic"
+
+# Обмежити середовища, під які взагалі рахувати lock. Без цього uv рахує
+# універсальний lock під усі ОС і версії Python одразу — це його відмінність
+# від poetry.lock. Звуження помітно прискорює резолв на великих проєктах.
+environments = ["sys_platform == 'darwin'", "sys_platform == 'linux'"]
+
+# Обмеження, які НЕ додають залежність, а лише звужують діапазон, якщо її
+# хтось притягнув. Аналог constraints.txt у pip.
+constraint-dependencies = ["urllib3>=2.0"]
+
+# Груба сила: перезаписати вимогу чужого пакета, який прибив занадто вузький
+# діапазон. Використовувати лише коли інакше ніяк.
+override-dependencies = ["werkzeug>=3.0"]
+
+# Extras, які не можна вмикати одночасно (наприклад CPU- та GPU-збірки).
+conflicts = [[{ extra = "cpu" }, { extra = "gpu" }]]
+
+# ── Джерела залежностей ─────────────────────────────────────────────────
+# Аналог [tool.poetry.dependencies] з git/path/source.
+# Тут закоментовано, бо це вигадані адреси — з ними `uv lock` не пройде.
+# [tool.uv.sources]
+# internal-lib  = { git = "https://github.com/acme/internal-lib.git", tag = "v1.2.0" }
+# other-lib     = { git = "https://github.com/acme/other.git", rev = "a1b2c3d" }
+# shared-utils  = { path = "../shared-utils", editable = true }   # develop = true у Poetry
+# vendored      = { url = "https://example.com/vendored-1.0-py3-none-any.whl" }
+# torch         = { index = "torch-cpu" }
+# my-pkg        = { workspace = true }                            # з цієї ж монорепи
+#
+# Джерело можна прив'язати до маркера — різні збірки для різних ОС:
+# torch = [
+#   { index = "torch-cpu", marker = "sys_platform != 'linux'" },
+#   { index = "torch-gpu", marker = "sys_platform == 'linux'" },
+# ]
+
+# ── Індекси ─────────────────────────────────────────────────────────────
+# Аналог [[tool.poetry.source]].
+#   default = true  → замінює PyPI повністю
+#   explicit = true → лише для пакетів, які явно вказали цей індекс
+#                     (аналог priority = "explicit")
+# [[tool.uv.index]]
+# name = "torch-cpu"
+# url = "https://download.pytorch.org/whl/cpu"
+# explicit = true
+
+# ── Монорепа ────────────────────────────────────────────────────────────
+# Кілька пакетів, ОДИН спільний uv.lock і одне середовище на всіх.
+# У Poetry прямого відповідника немає — там потрібні окремі проєкти або плагін.
+# [tool.uv.workspace]
+# members = ["packages/*", "apps/*"]
+# exclude = ["packages/legacy"]
+
+# ── Налаштування режиму сумісності з pip ────────────────────────────────
+# Впливає лише на команди `uv pip ...`, не на `uv sync`.
+[tool.uv.pip]
+index-strategy = "unsafe-best-match"
+generate-hashes = true
+
+
+# ════════════════════════════════════════════════════════════════════════
+#  [build-system] — лише для бібліотек
+#  Для застосунку (package = false) секції немає взагалі. Саме її
+#  відсутність і робить проєкт «незбираним».
+# ════════════════════════════════════════════════════════════════════════
+# [build-system]
+# requires = ["uv_build>=0.9,<0.10"]
+# build-backend = "uv_build"
+#
+# uv не прив'язаний до власного backend — з ним однаково працюють
+# hatchling, setuptools, flit, maturin, poetry-core.
+#
+# [tool.uv.build-backend]
+# module-name = "statusboard"
+# module-root = "src"
+
+
+# ════════════════════════════════════════════════════════════════════════
+#  ІНШІ ІНСТРУМЕНТИ — БЕЗ ЗМІН
+#  [tool.ruff], [tool.pytest.ini_options], [tool.mypy], [tool.coverage]
+#  виглядають точно так само, як у довіднику Poetry: вони не мають жодного
+#  стосунку до менеджера залежностей.
+# ════════════════════════════════════════════════════════════════════════
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+
+# ════════════════════════════════════════════════════════════════════════
+#  ЧОГО В uv НЕМАЄ ВЗАГАЛІ (а в Poetry є)
+# ════════════════════════════════════════════════════════════════════════
+#  [tool.poetry] packages / include / exclude
+#      → у uv це справа build-backend: [tool.uv.build-backend],
+#        [tool.hatch.build.targets.wheel] тощо.
+#
+#  [tool.poetry.requires-plugins]
+#      → у uv немає системи плагінів: усе вбудоване в один бінарник.
+#
+#  Синтаксис ^ і ~ у стилі Poetry
+#      → лише PEP 440 / PEP 508.
+#
+#  ЩО НАТОМІСТЬ Є ТІЛЬКИ В uv:
+#      .python-version              файл, що фіксує інтерпретатор
+#      [tool.uv.workspace]          монорепа
+#      environments                 звуження універсального lock
+#      conflicts                    взаємовиключні extras
+#      constraint-/override-dependencies
+#      python-downloads             uv сам завантажує Python

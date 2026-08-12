@@ -1,0 +1,10 @@
+2026-08-12 12:40:23,409 | INFO     | info message
+2026-08-12 12:40:23,409 | WARNING  | warning message
+2026-08-12 12:40:23,409 | ERROR    | error message
+2026-08-12 12:40:23,409 | CRITICAL | critical message
+2026-08-12 12:40:23,409 | ERROR    | unhandled error while dividing
+Traceback (most recent call last):
+  File "/Users/oleh.andrus/Projects/sandbox/PythonWebExamples/module01/logger_ex/logg.py", line 62, in <module>
+    1 / 0
+    ~~^~~
+ZeroDivisionError: division by zero

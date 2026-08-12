@@ -1,0 +1,52 @@
+# pre-commit runs the same three tools that pyproject.toml configures — ruff,
+# bandit and mypy — on `git commit`, against staged files only.
+#
+#   poetry run pre-commit install                 # wire into .git/hooks (once)
+#   poetry run pre-commit run --all-files         # run over everything now
+#   poetry run pre-commit autoupdate              # bump the `rev:` pins below
+#
+# Hooks install per GIT REPOSITORY, not per folder, and this repo holds several
+# projects. From the repository root, point at this file explicitly:
+#
+#   pre-commit run --config module01/03_poetry/.pre-commit-config.yaml --all-files
+#
+# `--all-files` means "every file git knows about". While this folder is still
+# untracked you will get `(no files to check) Skipped` from all four hooks —
+# that is not a broken config, it just means `git add` has not happened yet.
+
+
+files: ^module01/03_poetry/
+exclude: ^module01/03_poetry/(bandit_demo|mypy_demo|\.venv)/
+
+repos:
+  # ruff — linter and formatter. Rules live in [tool.ruff] in pyproject.toml,
+  # which ruff finds on its own; no --config needed.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.14
+    hooks:
+      - id: ruff-check
+        # --exit-non-zero-on-fix matters: with a bare --fix, ruff repairs
+        # the file and exits 0, so the commit goes through and you never
+        # notice your source was rewritten.
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  # bandit — security scanner. Unlike ruff and mypy it does NOT read
+  # pyproject.toml by itself, so -c is mandatory; without it bandit would
+  # scan .venv too and report hundreds of findings in other people's code.
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.4
+    hooks:
+      - id: bandit
+        args: [-c, module01/03_poetry/pyproject.toml]
+        # assert in tests is normal; bandit reports it as B101.
+        exclude: ^module01/03_poetry/tests/
+
+  # mypy — static type checking.
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.20.2
+    hooks:
+      - id: mypy
+        additional_dependencies: [flask==3.1.3, types-requests==2.33.0.20260712]
+        args: [--config-file, module01/03_poetry/pyproject.toml]
+        exclude: ^module01/03_poetry/tests/

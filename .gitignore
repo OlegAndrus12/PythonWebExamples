@@ -1,1 +1,84 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments — every example project makes its own
+.venv/
+venv/
+ENV/
+env/
+.python-version
+
+# Tool caches
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pytest_cache/
+.tox/
+.nox/
+.hypothesis/
+.cache/
+
+# Coverage / test artifacts
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.cover
+nosetests.xml
+junit.xml
+
+# Packaging / build output
+build/
+dist/
+sdist/
+wheels/
+*.egg-info/
+*.egg
+.eggs/
+MANIFEST
+pip-wheel-metadata/
+
+# Editors and OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Node (module03 runs polyglot containers)
 node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Local databases created by the examples at runtime
+*.sqlite
+*.sqlite3
+
+# Jupyter / IPython
+.ipynb_checkpoints/
+profile_default/
+ipython_config.py
+
+
+# ---------------------------------------------------------------------------
+# Deliberately NOT ignored in this repository — read before "fixing" this.
+#
+# .env, config.ini
+#   Committed on purpose. These hold throwaway teaching values (admin/admin,
+#   sample SMTP and JWT secrets) that the lecture examples need in order to
+#   run straight after a clone. They are not real credentials. A stock Python
+#   .gitignore lists .env; omitting it here is intentional.
+#
+# poetry.lock, uv.lock, package-lock.json
+#   Committed on purpose. "Lock files go into git, always" is the central
+#   point of module01/02–04, so the repo has to practise it.
+#
+# *.db
+#   module05/src/module05/sql/project.db is tracked as a teaching artifact,
+#   so *.db is left out. Runtime SQLite files use .sqlite/.sqlite3 above.
+# ---------------------------------------------------------------------------

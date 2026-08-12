@@ -1,10 +1,4 @@
-"""
-The Interface Segregation Principle (ISP) emphasizes the importance of
-keeping interfaces slim and relevant to the clients that implement them.
-It's one of the SOLID principles, a set of design principles in object-oriented
- software development aimed at making  software designs more understandable,
- flexible, and maintainable.
-"""
+
 
 """
 "Clients should not be forced to depend on methods they do not use."

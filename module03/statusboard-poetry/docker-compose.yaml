@@ -1,0 +1,20 @@
+# Identical to ../statusboard-uv/docker-compose.yaml apart from the port, so
+# both can run at once and you can compare the two images side by side.
+
+services:
+  statusboard-poetry:
+    build:
+      context: .
+    image: statusboard-poetry
+    container_name: statusboard-poetry
+    ports:
+      # 8001 on the host; the uv build takes 8000.
+      - "8001:8000"
+    environment:
+      - FLASK_DEBUG=0
+    volumes:
+      # The watch list lives in a JSON file inside the image, so services added
+      # through the UI vanish with the container. Bind-mounting the single file
+      # back to the host is the smallest fix.
+      - ./services.json:/app/services.json
+    restart: unless-stopped

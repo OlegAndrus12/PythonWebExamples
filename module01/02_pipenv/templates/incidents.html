@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Cloudflare incidents{% endblock %}
+{% block heading %}Cloudflare incidents{% endblock %}
+{% block subtitle %}Recent incidents, read from Cloudflare's public status API.{% endblock %}
+
+{% block content %}
+  {% if error %}
+    <p class="alert" role="alert">{{ error }}</p>
+
+  {% elif not incidents %}
+    <div class="card empty">
+      <p>No incidents in the window Cloudflare publishes.</p>
+    </div>
+
+  {% else %}
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Incident</th>
+            <th scope="col">Impact</th>
+            <th scope="col">Started (UTC)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in incidents %}
+          <tr>
+            <th scope="row">
+              <a class="service-name" href="{{ i.url }}" target="_blank" rel="noopener">{{ i.name }}</a>
+              {% if i.components %}
+              <span class="components">
+                {% for component in i.components %}<span class="chip">{{ component }}</span>{% endfor %}
+              </span>
+              {% endif %}
+            </th>
+
+            <td><span class="impact impact--{{ i.impact }}">{{ i.impact }}</span></td>
+
+            <td class="muted nowrap">{{ i.started.strftime('%d %b %Y, %H:%M') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+{% endblock %}
+
+{% block footer %}
+  Cloudflare publishes only its 50 most recent incidents — roughly the last
+  three weeks, not the complete history.
+{% endblock %}

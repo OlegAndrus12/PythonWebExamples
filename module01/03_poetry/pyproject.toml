@@ -1,0 +1,87 @@
+[project]
+name = "statusboard"
+version = "0.1.0"
+description = "Uptime board for public sites, packaged with Poetry"
+requires-python = ">=3.12"
+
+# The same two direct dependencies as 02_pipenv/requirements.txt, in PEP 621
+# syntax. Poetry writes the exact resolved versions of these — and of every
+# package they pull in — into poetry.lock.
+dependencies = [
+    "flask (>=3.1.0,<4.0.0)",
+    "requests (>=2.32.3,<3.0.0)",
+]
+
+[tool.poetry]
+# statusboard is an application, not a library: nobody installs it from an
+# index. package-mode = false tells Poetry to manage the environment only and
+# skip the build step, so no src/ layout and no build backend are needed.
+package-mode = false
+
+# Tools that must never ship to production. requirements.txt has no way to
+# express this distinction; you would keep a second file by hand.
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.14.0"
+pytest = "^9.1.1"
+bandit = "^1.9.4"
+pre-commit = "^4.6.1"
+mypy = "^1.18.0"
+
+# requests ships no type information of its own, so mypy would treat every
+# `requests.get(...)` as Any. The stubs are a separate package maintained in
+# typeshed — a dev dependency, since nothing imports it at runtime.
+types-requests = "^2.33.0.20260712"
+
+# The same settings 02_pipenv keeps in pytest.ini. One of the reasons
+# pyproject.toml exists: every tool configured in one place.
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-ra"
+
+# bandit reads this only when pointed at it: bandit -c pyproject.toml -r .
+[tool.bandit]
+exclude_dirs = [".venv", "tests", "bandit_demo", "mypy_demo"]
+
+# mypy, unlike bandit, finds this section on its own — a bare `mypy` in this
+# folder is a complete command.
+[tool.mypy]
+python_version = "3.12"
+
+# What to check when no path is given on the command line. The alternative is
+# `mypy .`, which would also crawl conflict/, test_env/ and the demo folder.
+files = ["app.py", "checks.py", "services.py", "incidents.py", "tests"]
+
+# The one flag worth turning on before any other. By default mypy skips the
+# body of a function with no annotations at all, so a file with no hints gets
+# no checking whatsoever. This checks those bodies too, treating the
+# parameters as Any.
+check_untyped_defs = true
+
+# Catches `# type: ignore` comments left behind after the underlying problem
+# was fixed — they otherwise hide the next real error on that line forever.
+warn_unused_ignores = true
+warn_redundant_casts = true
+
+# Applies only to files mypy discovers by crawling a directory. A path named
+# explicitly on the command line is always checked, which is what makes
+# `mypy mypy_demo/broken.py` work while `mypy` stays clean.
+exclude = ["mypy_demo/", "bandit_demo/", "conflict/", "test_env/"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+# Both demo files are broken on purpose; linting or auto-fixing them would
+# undo exactly what they exist to show.
+extend-exclude = ["bandit_demo", "mypy_demo"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.isort]
+# This project is a flat folder, not a package, so ruff cannot tell which
+# imports are ours. Without this, `import services` gets sorted in among the
+# third-party packages and the stdlib/third-party/local grouping is lost.
+known-first-party = ["app", "checks", "services", "incidents"]

@@ -1,0 +1,25 @@
+# A deliberately unsatisfiable project — see the README section
+# "Конфлікт залежностей".
+#
+# Its own folder, so the statusboard pyproject.toml and uv.lock one level up are
+# never touched. uv is pointed at it explicitly:
+#
+#     uv lock --project conflict
+#
+# Flask 3.1.0 declares Werkzeug>=3.1, so pinning Werkzeug to 2.3.0 beside it
+# asks for a combination that does not exist. uv refuses and prints the chain of
+# reasoning that led to the contradiction.
+#
+# Turn it into a *solvable* conflict by dropping the flask pin to just "flask":
+# uv then backtracks to Flask 2.3.1, the newest release that still accepts
+# Werkzeug 2.3.0, and writes a valid uv.lock.
+
+[project]
+name = "conflict-demo"
+version = "0.1.0"
+description = "Two requirements that cannot both be satisfied"
+requires-python = ">=3.12"
+dependencies = [
+    "flask==3.1.0",
+    "werkzeug==2.3.0",
+]

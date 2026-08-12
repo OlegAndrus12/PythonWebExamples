@@ -1,0 +1,418 @@
+{
+  "machine": {
+    "platform": "macOS-15.7.3-x86_64-i386-64bit",
+    "machine": "x86_64",
+    "cpu_count": 12,
+    "python": "/Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12",
+    "python_version": "Python 3.12.13",
+    "tools": {
+      "poetry": "Poetry (version 2.4.1)",
+      "uv": "uv 0.11.4 (3523c2349 2026-04-07 x86_64-apple-darwin)"
+    }
+  },
+  "config": {
+    "python_version": "3.12",
+    "requires_python": ">=3.12,<3.13",
+    "sets": {
+      "statusboard": {
+        "label": "statusboard",
+        "note": "the app from 02_pipenv / 03_poetry / 04_uv",
+        "direct": 6,
+        "runtime": [
+          "flask>=3.1.0,<4.0.0",
+          "requests>=2.32.3,<3.0.0"
+        ],
+        "dev": [
+          "bandit>=1.9.4",
+          "pre-commit>=4.6.1",
+          "pytest>=9.1.1",
+          "ruff>=0.14.0"
+        ]
+      },
+      "zoo_api": {
+        "label": "zoo_api-sized",
+        "note": "the runtime dependencies of zoo_api plus a normal dev toolchain",
+        "direct": 13,
+        "runtime": [
+          "fastapi[standard]>=0.116.1,<0.117.0",
+          "sqlalchemy>=2.0.43,<3.0.0",
+          "pydantic-settings>=2.10.1,<3.0.0",
+          "alembic>=1.16.5,<2.0.0",
+          "passlib>=1.7.4,<2.0.0",
+          "bcrypt>=4.3.0,<5.0.0",
+          "python-jose>=3.5.0,<4.0.0",
+          "redis>=6.4.0,<7.0.0",
+          "celery>=5.4.0,<6.0.0"
+        ],
+        "dev": [
+          "pytest>=8.3.0",
+          "pytest-asyncio>=0.24.0",
+          "ruff>=0.14.0",
+          "mypy>=1.11.0"
+        ]
+      }
+    },
+    "scenarios": [
+      "lock",
+      "install-cold",
+      "install-warm"
+    ],
+    "tools": [
+      "pip",
+      "poetry",
+      "uv"
+    ]
+  },
+  "results": {
+    "statusboard": {
+      "lock": {
+        "pip": {
+          "seconds": 3.5224,
+          "steps": [
+            {
+              "cmd": [
+                "pip-compile",
+                "requirements.in",
+                "-o",
+                "requirements.txt",
+                "--quiet"
+              ],
+              "seconds": 3.5224,
+              "returncode": 0
+            }
+          ],
+          "lock_bytes": 1493
+        },
+        "poetry": {
+          "seconds": 2.6208,
+          "steps": [
+            {
+              "cmd": [
+                "poetry",
+                "lock",
+                "--regenerate",
+                "--no-ansi"
+              ],
+              "seconds": 2.6208,
+              "returncode": 0
+            }
+          ],
+          "lock_bytes": 62235
+        },
+        "uv": {
+          "seconds": 0.0928,
+          "steps": [
+            {
+              "cmd": [
+                "uv",
+                "lock"
+              ],
+              "seconds": 0.0928,
+              "returncode": 0
+            }
+          ],
+          "lock_bytes": 41327
+        }
+      },
+      "install-cold": {
+        "pip": {
+          "seconds": 15.4854,
+          "steps": [
+            {
+              "cmd": [
+                "python3.12",
+                "-m",
+                "venv",
+                ".venv"
+              ],
+              "seconds": 2.6932,
+              "returncode": 0
+            },
+            {
+              "cmd": [
+                "python",
+                "-m",
+                "pip",
+                "install",
+                "-q",
+                "-r",
+                "requirements.txt"
+              ],
+              "seconds": 12.7922,
+              "returncode": 0
+            }
+          ],
+          "installed": 34
+        },
+        "poetry": {
+          "seconds": 9.7655,
+          "steps": [
+            {
+              "cmd": [
+                "poetry",
+                "install",
+                "--no-ansi"
+              ],
+              "seconds": 9.7655,
+              "returncode": 0
+            }
+          ],
+          "installed": 34
+        },
+        "uv": {
+          "seconds": 6.8569,
+          "steps": [
+            {
+              "cmd": [
+                "uv",
+                "sync",
+                "-p",
+                "/Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12"
+              ],
+              "seconds": 6.8569,
+              "returncode": 0
+            }
+          ],
+          "installed": 33
+        }
+      },
+      "install-warm": {
+        "pip": {
+          "seconds": 9.1013,
+          "steps": [
+            {
+              "cmd": [
+                "python3.12",
+                "-m",
+                "venv",
+                ".venv"
+              ],
+              "seconds": 2.5275,
+              "returncode": 0
+            },
+            {
+              "cmd": [
+                "python",
+                "-m",
+                "pip",
+                "install",
+                "-q",
+                "-r",
+                "requirements.txt"
+              ],
+              "seconds": 6.5738,
+              "returncode": 0
+            }
+          ],
+          "installed": 34
+        },
+        "poetry": {
+          "seconds": 2.3444,
+          "steps": [
+            {
+              "cmd": [
+                "poetry",
+                "install",
+                "--no-ansi"
+              ],
+              "seconds": 2.3444,
+              "returncode": 0
+            }
+          ],
+          "installed": 34
+        },
+        "uv": {
+          "seconds": 0.1331,
+          "steps": [
+            {
+              "cmd": [
+                "uv",
+                "sync",
+                "-p",
+                "/Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12"
+              ],
+              "seconds": 0.1331,
+              "returncode": 0
+            }
+          ],
+          "installed": 33
+        }
+      }
+    },
+    "zoo_api": {
+      "lock": {
+        "pip": {
+          "seconds": 8.9111,
+          "steps": [
+            {
+              "cmd": [
+                "pip-compile",
+                "requirements.in",
+                "-o",
+                "requirements.txt",
+                "--quiet"
+              ],
+              "seconds": 8.9111,
+              "returncode": 0
+            }
+          ],
+          "lock_bytes": 4154
+        },
+        "poetry": {
+          "seconds": 6.6864,
+          "steps": [
+            {
+              "cmd": [
+                "poetry",
+                "lock",
+                "--regenerate",
+                "--no-ansi"
+              ],
+              "seconds": 6.6864,
+              "returncode": 0
+            }
+          ],
+          "lock_bytes": 254387
+        },
+        "uv": {
+          "seconds": 0.1381,
+          "steps": [
+            {
+              "cmd": [
+                "uv",
+                "lock"
+              ],
+              "seconds": 0.1381,
+              "returncode": 0
+            }
+          ],
+          "lock_bytes": 134113
+        }
+      },
+      "install-cold": {
+        "pip": {
+          "seconds": 34.3093,
+          "steps": [
+            {
+              "cmd": [
+                "python3.12",
+                "-m",
+                "venv",
+                ".venv"
+              ],
+              "seconds": 2.5869,
+              "returncode": 0
+            },
+            {
+              "cmd": [
+                "python",
+                "-m",
+                "pip",
+                "install",
+                "-q",
+                "-r",
+                "requirements.txt"
+              ],
+              "seconds": 31.7224,
+              "returncode": 0
+            }
+          ],
+          "installed": 79
+        },
+        "poetry": {
+          "seconds": 11.0022,
+          "steps": [
+            {
+              "cmd": [
+                "poetry",
+                "install",
+                "--no-ansi"
+              ],
+              "seconds": 11.0022,
+              "returncode": 0
+            }
+          ],
+          "installed": 78
+        },
+        "uv": {
+          "seconds": 23.8436,
+          "steps": [
+            {
+              "cmd": [
+                "uv",
+                "sync",
+                "-p",
+                "/Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12"
+              ],
+              "seconds": 23.8436,
+              "returncode": 0
+            }
+          ],
+          "installed": 78
+        }
+      },
+      "install-warm": {
+        "pip": {
+          "seconds": 22.4179,
+          "steps": [
+            {
+              "cmd": [
+                "python3.12",
+                "-m",
+                "venv",
+                ".venv"
+              ],
+              "seconds": 2.739,
+              "returncode": 0
+            },
+            {
+              "cmd": [
+                "python",
+                "-m",
+                "pip",
+                "install",
+                "-q",
+                "-r",
+                "requirements.txt"
+              ],
+              "seconds": 19.6789,
+              "returncode": 0
+            }
+          ],
+          "installed": 79
+        },
+        "poetry": {
+          "seconds": 5.3419,
+          "steps": [
+            {
+              "cmd": [
+                "poetry",
+                "install",
+                "--no-ansi"
+              ],
+              "seconds": 5.3419,
+              "returncode": 0
+            }
+          ],
+          "installed": 78
+        },
+        "uv": {
+          "seconds": 0.4635,
+          "steps": [
+            {
+              "cmd": [
+                "uv",
+                "sync",
+                "-p",
+                "/Users/oleh.andrus/.local/share/uv/python/cpython-3.12-macos-x86_64-none/bin/python3.12"
+              ],
+              "seconds": 0.4635,
+              "returncode": 0
+            }
+          ],
+          "installed": 78
+        }
+      }
+    }
+  }
+}

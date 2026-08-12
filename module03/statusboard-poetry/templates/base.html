@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  {% block refresh %}{% endblock %}
+
+  <title>{% block title %}{% endblock %}</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="page">
+
+    <header>
+      <h1>{% block heading %}{% endblock %}</h1>
+      <p class="subtitle">{% block subtitle %}{% endblock %}</p>
+    </header>
+
+    <nav class="tabs" aria-label="Views">
+      <a class="tab {{ 'tab--active' if active == 'board' }}"
+         href="{{ url_for('board') }}"
+         {% if active == 'board' %}aria-current="page"{% endif %}>Status</a>
+      <a class="tab {{ 'tab--active' if active == 'incidents' }}"
+         href="{{ url_for('incidents_page') }}"
+         {% if active == 'incidents' %}aria-current="page"{% endif %}>Cloudflare incidents</a>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <footer>{% block footer %}{% endblock %}</footer>
+
+  </div>
+</body>
+</html>

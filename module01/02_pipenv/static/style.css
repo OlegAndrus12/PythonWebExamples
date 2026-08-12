@@ -1,0 +1,386 @@
+/* statusboard — all of the page styling.
+
+   Served by Flask from static/. Anything in that folder is handed to the
+   browser as a file, with no template rendering and no Python involved: the
+   URL static/style.css maps straight onto this file on disk.
+
+   Splitting it out of index.html means the browser can cache it across page
+   loads instead of re-downloading the same 300 lines on every 30-second
+   refresh. Below, palette first, then layout, then components. */
+
+/* Light palette. Every colour used anywhere is declared here first, so the
+   dark block below only has to override values, never rules. */
+:root {
+  color-scheme: light dark;
+
+  --bg:          #f7f7f6;
+  --surface:     #ffffff;
+  --text:        #17191c;
+  --muted:       #5b6270;
+  --border:      #e5e7eb;
+  --border-soft: #f0f1f3;
+
+  --ok:        #15803d;
+  --warn:      #b45309;
+  --down:      #c02626;
+  --ok-soft:   rgba(21, 128, 61, 0.10);
+  --warn-soft: rgba(180, 83, 9, 0.10);
+  --down-soft: rgba(192, 38, 38, 0.10);
+
+  --track: #eceef1;
+  --link:  #17191c;
+
+  /* The one non-semantic accent in the palette. Keyboard focus must not be
+     mistaken for "warning" or "down", so it gets a colour of its own. */
+  --focus: #2563eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:          #0f1114;
+    --surface:     #171a1f;
+    --text:        #e9ebee;
+    --muted:       #9aa3af;
+    --border:      #262b32;
+    --border-soft: #1e222829;
+
+    --ok:        #4ade80;
+    --warn:      #fbbf24;
+    --down:      #f87171;
+    --ok-soft:   rgba(74, 222, 128, 0.12);
+    --warn-soft: rgba(251, 191, 36, 0.12);
+    --down-soft: rgba(248, 113, 113, 0.12);
+
+    --track: #23272e;
+    --link:  #e9ebee;
+
+    --focus: #7aa2ff;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 3rem 1.25rem 4rem;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page { max-width: 46rem; margin: 0 auto; }
+
+header { margin-bottom: 1.75rem; }
+
+h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.subtitle { margin: 0; color: var(--muted); font-size: 0.875rem; }
+
+/* ---- status dot ---------------------------------------------------- */
+
+.dot {
+  flex: none;
+  display: inline-block;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.dot--ok   { background: var(--ok); }
+.dot--warn { background: var(--warn); }
+.dot--down { background: var(--down); }
+
+/* ---- table --------------------------------------------------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow-x: auto;           /* narrow screens scroll the table, not the page */
+}
+
+table {
+  width: 100%;
+  min-width: 24rem;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th, td {
+  padding: 0.875rem 1.125rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+thead th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+tbody tr:last-child th,
+tbody tr:last-child td { border-bottom: 0; }
+
+tbody th { font-weight: 500; }
+
+.service-name { color: var(--link); text-decoration: none; }
+.service-name:hover { text-decoration: underline; }
+
+.service-url {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+.state { display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; }
+
+.num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.muted { color: var(--muted); }
+.error { color: var(--down); font-size: 0.8125rem; white-space: nowrap; }
+
+/* ---- latency bar (pure CSS, width comes from Jinja) ----------------- */
+
+.latency { min-width: 6.5rem; }
+
+.bar {
+  display: block;
+  width: 100%;
+  max-width: 7rem;
+  height: 4px;
+  margin-top: 0.4rem;
+  border-radius: 2px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.bar__fill { display: block; height: 100%; border-radius: 2px; background: var(--muted); }
+.bar__fill--fast { background: var(--ok); }
+.bar__fill--mid  { background: var(--warn); }
+.bar__fill--slow { background: var(--down); }
+
+/* ---- per-row remove button ----------------------------------------- */
+
+/* Narrow, right-aligned, and never wrapping: the column exists to be
+   reachable, not to draw the eye away from the status it sits beside. */
+.actions { width: 1%; text-align: right; white-space: nowrap; }
+.actions form { margin: 0; }
+
+.btn-remove {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.btn-remove:hover,
+.btn-remove:focus-visible {
+  color: var(--down);
+  border-color: var(--down);
+  background: var(--down-soft);
+}
+
+/* ---- empty state ---------------------------------------------------- */
+
+.empty {
+  padding: 1.75rem 1.125rem;
+  text-align: center;
+  color: var(--muted);
+}
+.empty p { margin: 0; }
+
+/* ---- add form ------------------------------------------------------- */
+
+h2 {
+  margin: 2rem 0 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* The same card as the table, minus the horizontal scroll — `overflow-x`
+   would clip the focus rings on the controls inside. */
+/* The form sits directly above the table, so it needs a bottom margin of its
+   own — without one the two cards butt together and read as a single box. */
+.card--form { padding: 1.125rem; overflow: visible; margin-bottom: 1.5rem; }
+
+.add-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.field { display: grid; gap: 0.25rem; min-width: 0; }
+
+/* Deliberately the same treatment as a column header: both are labels for
+   the thing underneath them. */
+.field label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.field input {
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+}
+.field input::placeholder { color: var(--muted); opacity: 1; }
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--text);
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--surface);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn:hover { border-color: var(--muted); background: var(--muted); }
+
+/* One focus rule for every control on the page. `:focus-visible` shows the
+   ring for keyboard users without putting one around a just-clicked button. */
+.field input:focus-visible,
+.btn:focus-visible,
+.btn-remove:focus-visible,
+.service-name:focus-visible,
+.tab:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ---- inline alert --------------------------------------------------- */
+
+.alert {
+  margin: 0 0 1rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--down);
+  border-radius: 8px;
+  background: var(--down-soft);
+  color: var(--down);
+  font-size: 0.875rem;
+}
+
+footer {
+  margin-top: 1.25rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+/* Visible to screen readers only — lets a dash carry a real word. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 34rem) {
+  body { padding: 2rem 0.875rem 3rem; }
+  th, td { padding: 0.75rem 0.875rem; }
+  .bar { display: none; }        /* the number still says everything */
+  .latency { min-width: 0; }
+
+  .add-form { grid-template-columns: 1fr; }   /* one control per row */
+  .card--form { padding: 0.875rem; }
+}
+
+/* ---- tab nav -------------------------------------------------------- */
+
+.tabs {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  padding: 0.5rem 0;
+  margin-bottom: -1px;              /* sit the underline on the nav's border */
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.tab:hover { color: var(--text); }
+
+/* Weight and an underline, not just colour — the current tab has to be
+   obvious to someone who cannot distinguish the two greys. */
+.tab--active {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom-color: var(--text);
+}
+
+/* ---- incidents ------------------------------------------------------ */
+
+.impact {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Four levels out of the existing palette, no new tokens: none is inert,
+   minor and major are outlined in the warn and down colours, and critical is
+   filled so it outranks major without needing a fifth colour. */
+.impact--none     { background: var(--track);     color: var(--muted); }
+.impact--minor    { background: var(--warn-soft); color: var(--warn); border-color: var(--warn); }
+.impact--major    { background: var(--down-soft); color: var(--down); border-color: var(--down); }
+.impact--critical { background: var(--down);      color: var(--surface); border-color: var(--down); }
+
+.components { display: block; margin-top: 0.3rem; }
+
+.chip {
+  display: inline-block;
+  margin: 0.15rem 0.25rem 0 0;
+  padding: 0.05rem 0.4rem;
+  border-radius: 4px;
+  background: var(--track);
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.nowrap { white-space: nowrap; font-size: 0.8125rem; }
+
+/* A page that sets no footer renders <footer></footer>; hide it rather than
+   leaving its top margin behind. */
+footer:empty { display: none; }

@@ -9,10 +9,8 @@ class UsersListView:
         formated_results = []
         for user in self.users:
             user_dict = self.format_user(user)
-            if isinstance(user_dict["shirt_size"], set):
-                user_dict["shirt_sizes"] = list(user_dict["shirt_sizes"])
     
-            formated_results.append()
+            formated_results.append(user_dict)
 
         with open(self.path, "w") as f:
             try:
@@ -32,7 +30,7 @@ class UsersListViewAPI(UsersListView):
     def format_user(self, user):
         return {
             "name": user["first_name"],
-            "shirt_size": {user["shirt_size"], "S"},
+            "shirt_size": user["shirt_size"],
         } 
 
 export_view = UsersListViewAPI(
@@ -68,4 +66,4 @@ export_view = UsersListViewAPI(
     ], 
     path="export.json")
 
-export_view.format_user()
+export_view.export()
